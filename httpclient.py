@@ -82,14 +82,11 @@ class HTTPClient(object):
 
     def GET(self, url, args=None):
         result: parse.ParseResult = parse.urlparse(url)
-        print(f"{ result = }")
         resource = result.path if len(result.path) != 0 else "/"
         if result.params:
             resource += ";" + result.params
         if result.query:
             resource += "?" + result.query
-        if result.fragment:
-            resource += "#" + result.fragment
         request = (
             f"GET {resource} HTTP/1.1\r\n"
             f"Host: {result.netloc}\r\n"
@@ -98,7 +95,6 @@ class HTTPClient(object):
             "Connection: close\r\n"
             "\r\n"
         )
-        print(f"{ request = }")
         self.connect(result.hostname, result.port)
         self.sendall(request)
 
@@ -106,8 +102,6 @@ class HTTPClient(object):
 
         self.close()
 
-        print(f"{ response = }")
-        print(f"{ result.hostname = }")
         code = self.get_code(response)
         headers = self.get_headers(response)
         body = self.get_body(response)
@@ -120,8 +114,13 @@ class HTTPClient(object):
         content = ""
         if args:
             content = parse.urlencode(args)
+        resource = result.path if len(result.path) != 0 else "/"
+        if result.params:
+            resource += ";" + result.params
+        if result.query:
+            resource += "?" + result.query
         request = (
-            f"POST {result.path} HTTP/1.1\r\n"
+            f"POST {resource} HTTP/1.1\r\n"
             f"Host: {result.scheme}://{result.netloc}\r\n"
             f"User-Agent: I come from a school project\r\n"
             f"Accept: application/json\r\n"
@@ -131,7 +130,6 @@ class HTTPClient(object):
             f"{content}\r\n"
             f"\r\n"
         )
-        print(f"{ request = }")
         self.connect(result.hostname, result.port)
         self.sendall(request)
 
@@ -139,7 +137,6 @@ class HTTPClient(object):
 
         self.close()
 
-        print(f"{ response = }")
         code = self.get_code(response)
         headers = self.get_headers(response)
         body = self.get_body(response)
